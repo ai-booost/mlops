@@ -1,0 +1,31 @@
+# Directories and files created by JetBrains IDEs
+.idea/
+
+# User-specific configurations
+*.iml
+*.iws
+
+# Logs
+idea.log
+workspace.xml
+
+# Shelf files
+shelf/
+
+# Miscellaneous
+*.swp
+*.bak
+*.tmp
+*.orig
+*.rej
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Exclude generated files
+out/
+
+.env
+**/*.csv
+
