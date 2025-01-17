@@ -24,5 +24,21 @@ class WeatherRequests:
         :param month_range:
         :return:
         """
-        end_time = start_time + relativedelta(months=month_range)
+        end_time = datetime.now().replace(hour=23, minute=59, second=0, microsecond=0)
+        if month_range > 1:
+            end_time = start_time + relativedelta(months=month_range)
+
         return WeatherRequests(start_time, end_time)
+
+    @staticmethod
+    def create_day_range(start_time: datetime):
+        """
+        Create a WeatherRequests object with a day range.
+        :param start_time:
+        :return:
+        """
+        start_time_ = datetime.strptime("2025-01-17", "%Y-%m-%d")
+
+        # end_time을 start_time에 23:59로 설정
+        end_time = start_time.replace(hour=23, minute=59, second=59, microsecond=999999)
+        return WeatherRequests(start_time_, end_time)
