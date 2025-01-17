@@ -14,7 +14,7 @@ class DataPipeline:
         """
         self.feature_store = feature_store
 
-    def run_pipeline(self, source_data: pd.DataFrame, feature_table: str):
+    def run_pipeline(self, source_data: pd.DataFrame):
         """
         데이터 파이프라인을 실행하여 데이터를 처리하고 피처 스토어에 저장합니다.
         :param source_data: DataFrame containing raw input data.
@@ -28,10 +28,10 @@ class DataPipeline:
         columns_to_replace = ['시간강수량', '일강수량', '누적강수량', '풍속', '풍향', '일적설', '총적설', '상대습도']
 
         # 음수를 0으로 대체
-        processed_data[columns_to_replace] = processed_data[columns_to_replace].clip(lower=0)
+        processed_data.loc[:, columns_to_replace] = processed_data[columns_to_replace].clip(lower=0)
 
-        self.feature_store.ingest_data(processed_data, feature_table)
-        ic("Data pipeline completed.")
+        return processed_data
+
 
     def process_data(self, source_data: pd.DataFrame) -> pd.DataFrame:
         """
