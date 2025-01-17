@@ -1,12 +1,35 @@
+from abc import ABC, abstractmethod
 from pathlib import Path
-
 import pandas as pd
 from icecream import ic
 
-# Feature Store setup class
-class FeatureStore:
+# Abstract FeatureStore class
+class FeatureStore(ABC):
     """
-    Initializes a Feature Store with a local registry structure
+    Feature Store의 추상 클래스입니다.
+    """
+    @abstractmethod
+    def ingest_data(self, source_data: pd.DataFrame, feature_table: str):
+        """
+        데이터를 피처 저장소에 수집하는 메서드
+        :param source_data: DataFrame 포함 features.
+        :param feature_table: 데이터를 저장할 특징 테이블의 이름입니다.
+        """
+        pass
+
+    @abstractmethod
+    def retrieve_data(self, feature_table: str) -> pd.DataFrame:
+        """
+        피처 테이블에서 데이터를 검색하는 메서드
+        :param feature_table: 검색할 기능 테이블의 이름입니다
+        :return: DataFrame feature data.
+        """
+        pass
+
+# LocalFeatureStore class that implements FeatureStore
+class LocalFeatureStore(FeatureStore):
+    """
+    로컬 파일 시스템을 사용하여 Feature Store 구현.
     """
     def __init__(self, registry_path: str = "feature_store_registry"):
         """
