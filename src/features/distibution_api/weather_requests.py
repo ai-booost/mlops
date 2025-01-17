@@ -24,9 +24,7 @@ class WeatherRequests:
         :param month_range:
         :return:
         """
-        end_time = datetime.now().replace(hour=23, minute=59, second=0, microsecond=0)
-        if month_range > 1:
-            end_time = start_time + relativedelta(months=month_range)
+        end_time = start_time + relativedelta(months=month_range)
 
         return WeatherRequests(start_time, end_time)
 

@@ -3,8 +3,11 @@
 """
 from abc import ABC, abstractmethod
 from datetime import datetime
+from io import StringIO
 
 import pandas as pd
+import requests
+from tqdm import tqdm
 
 from src.features.distibution_api.weather_requests import WeatherRequests
 
@@ -61,7 +64,9 @@ class KmaApiClient(WeatherDataSource):
         date_offset = pd.DateOffset(months=1)
         current_time = request.start_time
 
-        while current_time < request.end_time:
+        total_iterations = ((request.end_time.year - request.start_time.year) * 12 +
+                            request.end_time.month - request.start_time.month)
+        for _ in tqdm(range(total_iterations), desc="Fetching Data", unit="month"):
             next_time = current_time + date_offset
             next_time_param = ((next_time - pd.DateOffset(days=1))
                                .replace(hour=23, minute=59).strftime("%Y%m%d%H%M"))
