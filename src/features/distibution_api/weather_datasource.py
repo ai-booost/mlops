@@ -1,12 +1,33 @@
 """
-기상청 API 클라이언트 클래스.
+날씨 데이터를 가져오는 데이터 소스 인터페이스를 정의한 파일
 """
+from abc import ABC, abstractmethod
+from datetime import datetime
 from io import StringIO
 
 import pandas as pd
 import requests
-from src.dataset.weather_requests import WeatherRequests
-from src.dataset.weather_datasource import WeatherDataSource
+from tqdm import tqdm
+
+from src.features.distibution_api.weather_requests import WeatherRequests
+
+# 데이터 소스 인터페이스 정의
+class WeatherDataSource(ABC):
+    """
+    날씨 데이터를 가져오는 데이터 소스 인터페이스
+    """
+
+    @abstractmethod
+    def fetch_data(self, start_time: datetime, end_time: datetime, station_id: str) -> pd.DataFrame:
+        """데이터를 가져오는 메서드"""
+
+    @abstractmethod
+    def fetch_monthly_range_data(self, request: WeatherRequests) -> pd.DataFrame:
+        """기간을 지정하여 데이터를 가져오는 메서드"""
+
+    @abstractmethod
+    def fetch_daily_range_data(self, request_params: WeatherRequests) -> pd.DataFrame:
+        """일일 데이터를 가져오는 메서드"""
 
 class KmaApiClient(WeatherDataSource):
     """
@@ -43,7 +64,9 @@ class KmaApiClient(WeatherDataSource):
         date_offset = pd.DateOffset(months=1)
         current_time = request.start_time
 
-        while current_time < request.end_time:
+        total_iterations = ((request.end_time.year - request.start_time.year) * 12 +
+                            request.end_time.month - request.start_time.month)
+        for _ in tqdm(range(total_iterations), desc="Fetching Data", unit="month"):
             next_time = current_time + date_offset
             next_time_param = ((next_time - pd.DateOffset(days=1))
                                .replace(hour=23, minute=59).strftime("%Y%m%d%H%M"))
@@ -52,12 +75,17 @@ class KmaApiClient(WeatherDataSource):
                 next_time_param,
                 request.location_id
             )
-            print(response.head(1))
-            print(response.tail(1))
             data_frames.append(response)
             current_time = next_time
 
         return pd.concat(data_frames)
+
+    def fetch_daily_range_data(self, request_params: WeatherRequests):
+        return self.fetch_data(
+            request_params.start_time.strftime("%Y%m%d%H%M"),
+            request_params.end_time.strftime("%Y%m%d%H%M"),
+            request_params.location_id
+        )
 
     def parse_to_dataframe(self, raw_data, translate_to_korean=False):
         """
@@ -114,3 +142,4 @@ class KmaApiClient(WeatherDataSource):
                            delim_whitespace=True,
                            header=None,
                            names=columns)
+
