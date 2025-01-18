@@ -29,3 +29,4 @@ out/
 .env
 **/*.csv
 
+airflow-data
